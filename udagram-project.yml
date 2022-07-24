@@ -140,7 +140,7 @@ Resources:
 
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
-    Properties:git 
+    Properties:
       VpcId: !Ref VPC
       Tags:
         - Key: Network
