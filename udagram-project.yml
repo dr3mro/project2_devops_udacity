@@ -382,3 +382,51 @@ Resources:
       Protocol: HTTP
       UnhealthyThresholdCount: 5
       VpcId: !Ref VPC
+  
+  WebAppLB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: udagram
+      Subnets:
+        - Ref: PublicSubnet1
+        - Ref: PublicSubnet2
+      SecurityGroups:
+        - Ref: LBSecGroup
+
+  WebAppListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref WebAppTG
+      LoadBalancerArn: !Ref WebAppLB
+      Port: 80
+      Protocol: HTTP
+
+  WebAppLR:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref WebAppTG
+      Conditions:
+        - Field: path-pattern
+          Values: [/]
+      ListenerArn: !Ref WebAppListener
+      Priority: 1
+
+  WebAppScaleUp:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref WebAppASG
+      Cooldown: 300
+      ScalingAdjustment: 1
+
+  WebAppScaleDown:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref WebAppASG
+      Cooldown: 300
+      ScalingAdjustment: -1
