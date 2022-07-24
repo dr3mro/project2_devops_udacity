@@ -3,6 +3,8 @@
 
  aws cloudformation create-stack  --stack-name udagrams3 --region us-east-1 --template-body file://udagram-s3.yml  --parameters file://udagram-s3-parameters.json --capabilities CAPABILITY_NAMED_IAM
 
+ aws cloudformation update-stack  --stack-name udagrams3 --region us-east-1 --template-body file://udagram-s3.yml  --parameters file://udagram-s3-parameters.json --capabilities CAPABILITY_NAMED_IAM
+
  2) wait until finished then copy resources to buckets 
  aws s3 cp webapp.zip s3://udagram-app-dr3mro/
  aws s3 cp vockey.pem s3://vockey/

@@ -312,11 +312,11 @@ Resources:
             apt-get install apache2 -y
             systemctl start apache2.service
             sudo rm /var/www/html/index.html
-            sudo aws s3 cp s3://udagram-app-dr3mro/webapp.zip /var/www/html
+            sudo wget https://udagram-app-dr3mro.s3.amazonaws.com/webapp.zip -P /var/www/html
             sudo unzip /var/www/html/webapp.zip -d /var/www/html
             systemctl restart apache2.service
         ImageId: ami-0729e439b6769d6ab
-        KeyName: vockey
+        KeyName: !Ref S3BucketKeyName
         SecurityGroupIds:
           - Ref: WebAppSG
         InstanceType: t2.micro
@@ -335,11 +335,11 @@ Resources:
           apt-get install apache2 -y
           systemctl start apache2.service
           sudo rm /var/www/html/index.html
-          sudo aws s3 cp s3://udagram-app-dr3mro/udagram.zip /var/www/html
+          sudo wget https://udagram-app-dr3mro.s3.amazonaws.com/webapp.zip -P /var/www/html
           sudo unzip /var/www/html/udagram.zip -d /var/www/html
           systemctl restart apache2.service
       ImageId: ami-0729e439b6769d6ab
-      KeyName: vockey
+      KeyName: !Ref S3BucketKeyName
       SecurityGroups:
       - Ref: WebAppSG
       InstanceType: t2.micro

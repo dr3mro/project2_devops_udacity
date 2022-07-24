@@ -8,7 +8,11 @@ Parameters:
     Description: App Bucket name.
     Type: String
     Default: udagram-app-dr3mro
-
+  
+  S3BucketKeyName:
+    Description: S3Bucket where ssh key saved
+    Type: String
+    Default: vockey
 ##########################################################################
 
 Resources:
