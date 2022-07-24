@@ -339,7 +339,6 @@ Resources:
           sudo unzip /var/www/html/webapp.zip -d /var/www/html
           systemctl restart apache2.service
       ImageId: ami-0729e439b6769d6ab
-      KeyName: !Ref S3BucketKeyName
       SecurityGroups:
       - Ref: WebAppSG
       InstanceType: t2.micro
