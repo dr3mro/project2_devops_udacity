@@ -1,0 +1,5 @@
+create command
+aws cloudformation create-stack  --stack-name udagramApp --region us-east-1 --template-body file://udagram-project.yml  --parameters file://udagram-project-parameters.json
+
+update command 
+aws cloudformation update-stack  --stack-name udagramApp --region us-east-1 --template-body file://udagram-project.yml  --parameters file://udagram-project-parameters.json
