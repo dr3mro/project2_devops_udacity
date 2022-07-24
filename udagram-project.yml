@@ -551,3 +551,8 @@ Resources:
         Fn::GetAtt:
           - EIP2
           - AllocationId
+
+Outputs:
+  Website:
+    Description: The Public DNS for the EC2 Instance
+    Value: !Join ['', ['http://', !GetAtt [WebAppLB, DNSName]]]
