@@ -113,3 +113,15 @@ Resources:
           Value: Private
         - Key: Name
           Value: !Sub ${EnvironmentName} Private Subnet (AZ2)
+
+  ElasticIP1:
+    Type: AWS::EC2::EIP
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      Domain: vpc
+
+  ElasticIP2:
+    Type: AWS::EC2::EIP
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      Domain: vpc
