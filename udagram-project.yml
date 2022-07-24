@@ -1,0 +1,30 @@
+Description: >
+  Project 2 | Amr Nasr Osman
+  High availability web app using cloudformation 
+
+##########################################################################
+Parameters:
+  VpcCIDR:
+    Description: Please enter the IP range (CIDR notation) for this VPC
+    Type: String
+    Default: 10.0.0.0/16
+
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
+    Default: UdagramApp
+    
+##########################################################################
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      CidrBlock: !Ref VpcCIDR
+      Tags:
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: !Ref EnvironmentName
