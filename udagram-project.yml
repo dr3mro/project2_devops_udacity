@@ -34,6 +34,10 @@ Parameters:
     Type: String
     Default: 10.0.3.0/24
 
+  S3BucketAppName:
+    Description: A Bucked name.
+    Type: String
+    Default: udagram-app-dr3mro
 ##########################################################################
 
 Resources:
@@ -213,7 +217,28 @@ Resources:
     Properties:
       RouteTableId: !Ref PrivateRouteTable2
       SubnetId: !Ref PrivateSubnet2
+  
+  S3WebApp:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref S3BucketAppName
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+    DeletionPolicy: Delete
 
+  S3WebAppPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3WebApp
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: s3:*
+            Resource: !Join ['', ['arn:aws:s3:::', !Ref 'S3WebApp', '/*']]
+            Principal:
+              AWS: '*'
   WebServerSecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -252,3 +277,52 @@ Resources:
         FromPort: 80
         ToPort: 80
         CidrIp: 0.0.0.0/0
+
+  WebAppLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties: 
+      LaunchTemplateData:
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            apt-get update -y
+            apt-get install unzip awscli -y
+            apt-get install apache2 -y
+            systemctl start apache2.service
+            sudo rm /var/www/html/index.html
+            sudo aws s3 cp s3://udagram-app-dr3mro/udagram.zip /var/www/html
+            sudo unzip /var/www/html/udagram.zip -d /var/www/html
+            systemctl restart apache2.service
+        ImageId: ami-0729e439b6769d6ab
+        KeyName: vockey
+        SecurityGroupIds:
+          - sg-058d69e0a128e86a3
+        InstanceType: t2.micro
+        BlockDeviceMappings:
+        - DeviceName: "/dev/sdk"
+          Ebs:
+            VolumeSize: '10'
+  WebAppLaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          apt-get update -y
+          apt-get install unzip awscli -y
+          apt-get install apache2 -y
+          systemctl start apache2.service
+          sudo rm /var/www/html/index.html
+          sudo aws s3 cp s3://udagram-app-dr3mro/udagram.zip /var/www/html
+          sudo unzip /var/www/html/udagram.zip -d /var/www/html
+          systemctl restart apache2.service
+      ImageId: ami-0729e439b6769d6ab
+      KeyName: vockey
+      SecurityGroups:
+      - Ref: WebServerSecGroup
+      InstanceType: t2.micro
+      BlockDeviceMappings:
+      - DeviceName: "/dev/sdk"
+        Ebs:
+          VolumeSize: '10'
+
