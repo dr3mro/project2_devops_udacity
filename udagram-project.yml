@@ -137,3 +137,13 @@ Resources:
     Properties:
       AllocationId: !GetAtt ElasticIP2.AllocationId
       SubnetId: !Ref PublicSubnet2
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:git 
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Routes
