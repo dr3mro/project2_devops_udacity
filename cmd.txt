@@ -17,7 +17,7 @@ aws cloudformation update-stack  --stack-name udagramApp --region us-east-1 --te
 
 
  * to delete stack 
- 1) aws s3 rb s3://udagram-app-dr3mro/ --force
- 2) aws s3 rb s3://vockey --force
- 3) aws cloudformation delete-stack  --stack-name udagramApp
- 4) aws cloudformation delete-stack  --stack-name udagrams3
+ aws s3 rb s3://udagram-app-dr3mro/ --force
+ aws s3 rb s3://vockey --force
+ aws cloudformation delete-stack  --stack-name udagramApp
+ aws cloudformation delete-stack  --stack-name udagrams3

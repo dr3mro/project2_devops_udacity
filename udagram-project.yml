@@ -308,7 +308,7 @@ Resources:
           Fn::Base64: !Sub |
             #!/bin/bash
             apt-get update -y
-            apt-get install unzip awscli -y
+            apt-get install unzip -y
             apt-get install apache2 -y
             systemctl start apache2.service
             sudo rm /var/www/html/index.html
@@ -331,7 +331,7 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash
           apt-get update -y
-          apt-get install unzip awscli -y
+          apt-get install unzip -y
           apt-get install apache2 -y
           systemctl start apache2.service
           sudo rm /var/www/html/index.html
