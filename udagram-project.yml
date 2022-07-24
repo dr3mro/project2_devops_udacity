@@ -125,3 +125,15 @@ Resources:
     DependsOn: InternetGatewayAttachment
     Properties:
       Domain: vpc
+
+  NatGateway1:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt ElasticIP1.AllocationId
+      SubnetId: !Ref PublicSubnet1
+
+  NatGateway2:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt ElasticIP2.AllocationId
+      SubnetId: !Ref PublicSubnet2
