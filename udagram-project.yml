@@ -244,7 +244,7 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: vockey
-      AccessControl: private
+      AccessControl: Private
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: error.html
