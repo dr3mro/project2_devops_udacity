@@ -35,9 +35,24 @@ Parameters:
     Default: 10.0.3.0/24
 
   S3BucketAppName:
-    Description: A Bucked name.
+    Description: App Bucket name.
     Type: String
     Default: udagram-app-dr3mro
+
+  SourceIP:
+    Description: Ip address to allow SSH access to the host
+    Type: String
+    Default: 0.0.0.0/0
+
+  S3BucketKeyName:
+    Description: S3Bucket where ssh key saved
+    Type: String
+    Default: vockey
+
+  KeyUdagramSSH:
+    Description: KeyName to access udagram server host
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    Default: vockey
 ##########################################################################
 
 Resources:
@@ -430,3 +445,132 @@ Resources:
       AutoScalingGroupName: !Ref WebAppASG
       Cooldown: 300
       ScalingAdjustment: -1
+
+
+  UdagramIamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: '/'
+
+  UdagramIamPolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: fullAccess
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: 's3:*'
+            Resource: '*'
+      Roles:
+        - !Ref UdagramIamRole
+
+  UdagramIamInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: '/'
+      Roles:
+        - !Ref UdagramIamRole
+
+  PublicServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: SG to access to public host
+      VpcId: !Ref VPC
+      SecurityGroupEgress:
+        - IpProtocol: '-1'
+          CidrIp: 0.0.0.0/0
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: !Sub ${SourceIP}
+
+  PublicServer1:
+    Type: AWS::EC2::Instance
+    DependsOn:
+      - PublicServerSecurityGroup
+      - UdagramIamInstanceProfile
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          apt-get update -y
+          apt-get install unzip awscli -y
+          cd /home/ubuntu
+          aws s3 cp s3://${S3BucketKeyName}/${KeyUdagramSSH}.pem /home/ubuntu
+          chmod 400 ${KeyUdagramSSH}.pem
+      IamInstanceProfile: !Ref UdagramIamInstanceProfile
+      SecurityGroupIds:
+        - Ref: PublicServerSecurityGroup
+      SubnetId: !Ref PublicSubnet1
+      ImageId: ami-0729e439b6769d6ab
+      InstanceType: t2.micro
+      KeyName: !Sub ${KeyUdagramSSH}
+
+  EIP1:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: !Ref VPC
+
+  EIPAssociation1:
+    Type: AWS::EC2::EIPAssociation
+    DependsOn:
+      - PublicServer1
+      - EIP1
+    Properties:
+      InstanceId:
+        Ref: PublicServer1
+      AllocationId:
+        Fn::GetAtt:
+          - EIP1
+          - AllocationId
+
+  PublicServer2:
+    Type: AWS::EC2::Instance
+    DependsOn:
+      - PublicServerSecurityGroup
+      - UdagramIamInstanceProfile
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          apt-get update -y
+          apt-get install unzip awscli -y
+          cd /home/ubuntu
+          aws s3 cp s3://${S3BucketKeyName}/${KeyUdagramSSH}.pem /home/ubuntu
+          chmod 400 ${KeyUdagramSSH}.pem
+      IamInstanceProfile: !Ref UdagramIamInstanceProfile
+      SecurityGroupIds:
+        - Ref: PublicServerSecurityGroup
+      SubnetId: !Ref PublicSubnet2
+      ImageId: ami-0729e439b6769d6ab
+      InstanceType: t2.micro
+      KeyName: !Sub ${KeyUdagramSSH}
+
+  EIP2:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: !Ref VPC
+
+  EIPAssociation2:
+    Type: AWS::EC2::EIPAssociation
+    DependsOn:
+      - PublicServer2
+      - EIP2
+    Properties:
+      InstanceId:
+        Ref: PublicServer2
+      AllocationId:
+        Fn::GetAtt:
+          - EIP2
+          - AllocationId

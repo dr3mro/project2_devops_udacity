@@ -1,11 +1,11 @@
 create command
-aws cloudformation create-stack  --stack-name udagramApp --region us-east-1 --template-body file://udagram-project.yml  --parameters file://udagram-project-parameters.json
+aws cloudformation create-stack  --stack-name udagramApp --region us-east-1 --template-body file://udagram-project.yml  --parameters file://udagram-project-parameters.json --capabilities CAPABILITY_NAMED_IAM
 
 update command 
-aws cloudformation update-stack  --stack-name udagramApp --region us-east-1 --template-body file://udagram-project.yml  --parameters file://udagram-project-parameters.json
+aws cloudformation update-stack  --stack-name udagramApp --region us-east-1 --template-body file://udagram-project.yml  --parameters file://udagram-project-parameters.json --capabilities CAPABILITY_NAMED_IAM
 
 
  aws s3 cp webapp.zip s3://udagram-app-dr3mro/
- 
+
  aws s3 rm s3://udagram-app-dr3mro/ --recursive
  aws cloudformation delete-stack  --stack-name udagramApp
