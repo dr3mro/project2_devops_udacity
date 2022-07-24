@@ -1,0 +1,64 @@
+Description: >
+  Project 2 | Amr Nasr Osman
+  High availability web app using cloudformation - s3 bucket script
+
+##########################################################################
+Parameters:
+  S3BucketAppName:
+    Description: App Bucket name.
+    Type: String
+    Default: udagram-app-dr3mro
+
+##########################################################################
+
+Resources:
+  S3WebApp:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref S3BucketAppName
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+    DeletionPolicy: Retain
+
+  S3WebAppPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3WebApp
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: s3:*
+            Resource: !Join ['', ['arn:aws:s3:::', !Ref 'S3WebApp', '/*']]
+            Principal:
+              AWS: '*'
+
+  S3KeyPair:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: vockey
+      AccessControl: Private
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+    DeletionPolicy: Retain
+
+  S3KeyPairPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3KeyPair
+      PolicyDocument:
+        Statement:
+          - Sid: AllowStaticObjectDownload
+            Action: s3:GetObject
+            Effect: Allow
+            Resource: !Join ['', ['arn:aws:s3:::', !Ref 'S3KeyPair', '/*']]
+            Principal:
+              AWS: '*'
+          - Sid: PutObjectAccess
+            Action: s3:PutObject
+            Effect: Allow
+            Resource: !Join ['', ['arn:aws:s3:::', !Ref 'S3KeyPair', '/*']]
+            Principal:
+              AWS: '*'

@@ -233,56 +233,6 @@ Resources:
       RouteTableId: !Ref PrivateRouteTable2
       SubnetId: !Ref PrivateSubnet2
   
-  S3WebApp:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Ref S3BucketAppName
-      AccessControl: PublicRead
-      WebsiteConfiguration:
-        IndexDocument: index.html
-        ErrorDocument: error.html
-    DeletionPolicy: Retain
-
-  S3WebAppPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref S3WebApp
-      PolicyDocument:
-        Statement:
-          - Effect: Allow
-            Action: s3:*
-            Resource: !Join ['', ['arn:aws:s3:::', !Ref 'S3WebApp', '/*']]
-            Principal:
-              AWS: '*'
-
-  S3KeyPair:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: vockey
-      AccessControl: Private
-      WebsiteConfiguration:
-        IndexDocument: index.html
-        ErrorDocument: error.html
-    DeletionPolicy: Retain
-
-  S3KeyPairPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref S3KeyPair
-      PolicyDocument:
-        Statement:
-          - Sid: AllowStaticObjectDownload
-            Action: s3:GetObject
-            Effect: Allow
-            Resource: !Join ['', ['arn:aws:s3:::', !Ref 'S3KeyPair', '/*']]
-            Principal:
-              AWS: '*'
-          - Sid: PutObjectAccess
-            Action: s3:PutObject
-            Effect: Allow
-            Resource: !Join ['', ['arn:aws:s3:::', !Ref 'S3KeyPair', '/*']]
-            Principal:
-              AWS: '*'
 
   WebServerSecGroup:
     Type: AWS::EC2::SecurityGroup
@@ -323,6 +273,33 @@ Resources:
         ToPort: 80
         CidrIp: 0.0.0.0/0
 
+  WebAppSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow http to ec2 and SHH access
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref PublicSubnet1CIDR
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref PublicSubnet2CIDR
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-Webapp Security Group
+  
   WebAppLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
     Properties: 
@@ -341,7 +318,7 @@ Resources:
         ImageId: ami-0729e439b6769d6ab
         KeyName: vockey
         SecurityGroupIds:
-          - Ref: WebServerSecGroup
+          - Ref: WebAppSG
         InstanceType: t2.micro
         BlockDeviceMappings:
         - DeviceName: "/dev/sdk"
@@ -364,7 +341,7 @@ Resources:
       ImageId: ami-0729e439b6769d6ab
       KeyName: vockey
       SecurityGroups:
-      - Ref: WebServerSecGroup
+      - Ref: WebAppSG
       InstanceType: t2.micro
       BlockDeviceMappings:
       - DeviceName: "/dev/sdk"

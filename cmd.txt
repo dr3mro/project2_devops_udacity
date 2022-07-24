@@ -1,23 +1,21 @@
+ how to use script 
+ 1) create s3 buckets 
 
+ aws cloudformation create-stack  --stack-name udagrams3 --region us-east-1 --template-body file://udagram-s3.yml  --parameters file://udagram-s3-parameters.json --capabilities CAPABILITY_NAMED_IAM
+
+ 2) wait until finished then copy resources to buckets 
  aws s3 cp webapp.zip s3://udagram-app-dr3mro/
  aws s3 cp vockey.pem s3://vockey/
 
-
-create command
+ 3) now create stack
 aws cloudformation create-stack  --stack-name udagramApp --region us-east-1 --template-body file://udagram-project.yml  --parameters file://udagram-project-parameters.json --capabilities CAPABILITY_NAMED_IAM
 
-update command 
+4) use update command to do partial updates
 aws cloudformation update-stack  --stack-name udagramApp --region us-east-1 --template-body file://udagram-project.yml  --parameters file://udagram-project-parameters.json --capabilities CAPABILITY_NAMED_IAM
 
 
- aws s3 cp webapp.zip s3://udagram-app-dr3mro/
- aws s3 cp vockey.pem s3://vockey/
-
-
-
- aws s3 rm s3://udagram-app-dr3mro/ --recursive
- aws s3 rm s3://vockey --recursive
-
- aws cloudformation delete-stack  --stack-name udagramApp
-
- aws s3 cp .\vockey.pem s3://vockey
+ * to delete stack 
+ 1) aws s3 rb s3://udagram-app-dr3mro/ --force
+ 2) aws s3 rb s3://vockey --force
+ 3) aws cloudformation delete-stack  --stack-name udagramApp
+ 4) aws cloudformation delete-stack  --stack-name udagrams3
