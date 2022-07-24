@@ -241,7 +241,7 @@ Resources:
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: error.html
-    DeletionPolicy: Delete
+    DeletionPolicy: Retain
 
   S3WebAppPolicy:
     Type: AWS::S3::BucketPolicy
@@ -341,7 +341,7 @@ Resources:
         ImageId: ami-0729e439b6769d6ab
         KeyName: vockey
         SecurityGroupIds:
-          - sg-058d69e0a128e86a3
+          - Ref: WebServerSecGroup
         InstanceType: t2.micro
         BlockDeviceMappings:
         - DeviceName: "/dev/sdk"
